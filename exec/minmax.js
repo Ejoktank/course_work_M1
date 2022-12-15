@@ -19,6 +19,12 @@ const Data = {
   },
 };
 
+let iterator = 0;
+let minMaxSquareSrting = "";
+
+mapData(Data.no_trench);
+mapData(Data.open_trench);
+
 function mapData(object) {
   object.files.map((path) => {
     fs.readFile(path, "utf-8", (err, data) => {
@@ -33,15 +39,17 @@ function mapData(object) {
   });
 }
 
-mapData(Data.no_trench);
-mapData(Data.open_trench);
-
 function parseColumn(data, colNumber) {
-  let counter = 0;
   let max = 0;
   let min = 0;
   let minMaxSquare = 0;
   const parsedData = [];
+
+  data.split(" ").map((el) => {
+    if (el !== "") {
+      parsedData.push(el);
+    }
+  });
 
   function findMinMaxSquare(parsedData, colNumber) {
     parsedData.map((el, idx) => {
@@ -55,27 +63,17 @@ function parseColumn(data, colNumber) {
       }
     });
     minMaxSquare = (max - min) ** 2;
-    console.log("max: ", max);
-    console.log("min: ", min);
-    console.log("(max - min) ** 2: ", minMaxSquare);
+
+    console.log(`minMaxSquare_${iterator}: `, minMaxSquare);
+    iterator++;
+
+    minMaxSquareSrting += `${minMaxSquare.toString()}\n`;
+    fs.writeFile('minmaxSquares.txt', minMaxSquareSrting, function (err) {
+      if (err) return console.log(err);
+    });
+    
+    return minMaxSquare;
   }
 
-  data.split(" ").map((el) => {
-    if (el !== "") {
-      counter++;
-      parsedData.push(el);
-    }
-  });
-  console.log("items: ", counter);
-
-  if (counter % 229 === 0) {
-    console.log("no-trench");
-    findMinMaxSquare(parsedData, colNumber);
-  }
-  if (counter % 257 === 0) {
-    console.log("open-trench");
-    findMinMaxSquare(parsedData, colNumber);
-  }
-
-  return parsedData;
+  return findMinMaxSquare(parsedData, colNumber);
 }
