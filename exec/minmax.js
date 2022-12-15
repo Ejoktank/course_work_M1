@@ -38,6 +38,12 @@ Promise.all([
     res.push(b / a);
   }
 
+  const resString = res.toString().split(",").join("\n");
+
+  fs.writeFile("Afr.txt", resString, function (err) {
+    if (err) return console.log(err);
+  });
+
   console.log(res);
 });
 
@@ -70,14 +76,6 @@ function mapData(object, prefix) {
         }
 
         processed[coord] = true;
-
-        fs.writeFile(
-          `${prefix}_${nodePath.basename(path)}_minmaxSquares.txt`,
-          minMaxSquareSrting,
-          function (err) {
-            if (err) return console.log(err);
-          }
-        );
 
         if (Object.values(processed).reduce((a, e) => e && a, true)) {
           res(points);
