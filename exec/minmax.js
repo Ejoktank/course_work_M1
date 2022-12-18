@@ -1,5 +1,4 @@
 const fs = require("fs");
-const nodePath = require("path");
 
 const Data = {
   no_trench: {
@@ -8,7 +7,7 @@ const Data = {
       ["../hs/no-trench/coarse-mesh/01_su_euler_2.txt", "y"],
       ["../hs/no-trench/coarse-mesh/01_su_euler_3.txt", "z"],
     ],
-    columns: [49, 50, 51, 52, 53, 54, 55, 56],
+    columns: [50, 51, 52, 53, 54, 55, 56, 57],
   },
   open_trench: {
     files: [
@@ -16,13 +15,13 @@ const Data = {
       ["../hs/open-trench/coarse-mesh/01_su_euler_2.txt", "y"],
       ["../hs/open-trench/coarse-mesh/01_su_euler_3.txt", "z"],
     ],
-    columns: [53, 54, 55, 56, 57, 58, 59, 60],
+    columns: [54, 55, 56, 57, 58, 59, 60, 61],
   },
 };
 
 Promise.all([
-  mapData(Data.no_trench, "no_trench"),
-  mapData(Data.open_trench, "open_trench"),
+  mapData(Data.no_trench),
+  mapData(Data.open_trench),
 ]).then(([points1, points2]) => {
   console.log("no_trench", points1);
   console.log("open_trench", points2);
@@ -47,7 +46,7 @@ Promise.all([
   console.log(res);
 });
 
-function mapData(object, prefix) {
+function mapData(object) {
   return new Promise((res) => {
     const points = object.columns.map(() => {
       return {};
@@ -64,10 +63,7 @@ function mapData(object, prefix) {
           return console.error(err);
         }
         const parsedData = data.split(" ").filter((e) => e);
-        const { minMaxSquareSrting, minMaxes } = parseColumns(
-          parsedData,
-          object.columns
-        );
+        const minMaxes = parseColumns(parsedData, object.columns);
 
         let i = 0;
         for (const e of minMaxes) {
@@ -86,8 +82,6 @@ function mapData(object, prefix) {
 }
 
 function parseColumns(data, columns) {
-  let minMaxSquareSrting = "";
-
   function findMinMaxSquare(parsedData, colNumber) {
     const [max, min] = parsedData.reduce(
       ([max, min], el, idx) => {
@@ -105,15 +99,10 @@ function parseColumns(data, columns) {
     );
 
     const minMaxSquare = (max - min) ** 2;
-    minMaxSquareSrting += `${colNumber} = ${minMaxSquare.toString()}\n`;
     return minMaxSquare;
   }
 
-  // ВАЖНО, ЧТО ДО, а то side effect не отработает
   const minMaxes = columns.map((e) => findMinMaxSquare(data, e));
 
-  return {
-    minMaxSquareSrting,
-    minMaxes,
-  };
+  return minMaxes;
 }
